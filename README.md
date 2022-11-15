@@ -9,3 +9,7 @@ moviepy
 easygui
 
 No dependencies required for compiled version
+
+## Changelog
+v0.1 - 04.11.22 - trixiewasanegg - Initial Release
+v0.2 - 15.11.22 - trixiewasanegg - Implemented logging for debug & loop to repeat files
