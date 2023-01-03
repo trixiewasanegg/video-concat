@@ -1,25 +1,29 @@
-from moviepy.video.io.VideoFileClip import VideoFileClip
-from moviepy.video.compositing.concatenate import concatenate_videoclips
+#from moviepy.video.io.VideoFileClip import VideoFileClip
+#from moviepy.video.compositing.concatenate import concatenate_videoclips
 import os
 import easygui
 import time
 
 #Boilerplate code, valid file types & processing function
 validExt = [".mp4",".avi",".ogv",".webm",".mkv"]
-title = "EasyConcat v0.2"
+title = "EasyConcat v0.3"
 
-def processclips():
+def processclips(clipProcess, folder, outputfile, fps="25", extension=".mp4"):
+    #Writes Clips to .txt file for FFMPEG to read later
+    txt = folder + ".txt"
+    with open(txt, 'w') as f:
+        for clip in clipProcess:
+            cl2 = clip.replace("\\","\\\\")
+            f.write("file ")
+            f.write(cl2)
+            f.write('\n')
+
     startTime = time.time()
-    finalclip = concatenate_videoclips(clips)
-    finalclip.write_videofile(folder + "\\" + outputfile + extension, write_logfile=True)
+    command = "ffmpeg -f concat -safe 0 -i " + txt + " -r " + fps + " -c copy " + folder + "\\" + outputfile + extension
+    print(command)
+    os.system(command)
     endTime = time.time()
-    textToDisplay = str(len(clips)) + " clips processed in " + str(round(endTime-startTime,1)) + " seconds\n Keep the log file?"
-    keep = easygui.buttonbox(textToDisplay, title, ["No", "Yes"])
-
-    if keep == "No":
-        os.remove(folder + "\\" + outputfile + extension + ".log")
-    
-    textToDisplay = "Process more files?"
+    textToDisplay = str(len(clipProcess)) + " clips processed in " + str(round(endTime-startTime,1)) + " seconds\nProcess more Files?"
     output = easygui.buttonbox(textToDisplay, title, ["Finish", "Go Again"])
 
     if output == "Finish":
@@ -37,12 +41,13 @@ while True:
     textToDisplay = "Please give the full folder path as copied from Explorer\nE.G: C:\\Users\\bea\\Music"
     while cont == False:
         #easygui multienterbox, defines list of parameters and text to display
-        parameters = ["Folder Path", "Output File Name", "Output Extension"]
-        defaults = ["","",".mp4"]
+        parameters = ["Folder Path", "FPS", "Output File Name","Extension"]
+        defaults = ["","25","",".mp4"]
         input = easygui.multenterbox(prefix + textToDisplay,title,parameters,defaults)
         folder = input[0]
-        outputfile = input[1]
-        extension = input[2]
+        fps = input[1]
+        outputfile = input[2]
+        extension = input[3]
         files = os.listdir(folder)
         #data sanitisation, if folder doesn't exist, file already exists, or if extension is invalid it will add a prefix to display
         if os.path.exists(folder) == False:
@@ -73,7 +78,7 @@ while True:
             failedFiles.append(file)
         else:
             #Adds the file to the clips array for processing
-            clips.append(VideoFileClip(folder + "\\" + file))
+            clips.append(folder + "\\\\" + file)
 
     if errors == True:
         errorCount = len(failedFiles)
@@ -87,9 +92,9 @@ while True:
             result = easygui.buttonbox(textToDisplay, title, ["Cancel", "Proceed"])
         
         if result == "Proceed":
-            brk = processclips()
+            brk = processclips(clips, folder, outputfile)
     else:
-        brk = processclips()
+        brk = processclips(clips, folder, outputfile)
 
     if brk == True:
         break
