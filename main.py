@@ -52,7 +52,7 @@ while True:
         #data sanitisation, if folder doesn't exist, file already exists, or if extension is invalid it will add a prefix to display
         if os.path.exists(folder) == False:
             prefix = "Failed to find supplied folder\n"
-        elif validExt.count(extension) == 0:
+        elif validExt.count(extension.lower()) == 0:
             prefix = "Extension provided invalid\n"
         elif files.count(outputfile+extension) != 0:
             prefix = "Cannot over-write file, please choose a different filename\n"
@@ -71,7 +71,7 @@ while True:
         tmp = file.split(".")
         ext = "." + str(tmp.pop())
         #Counts instances of extension in the validExt array
-        extCount = validExt.count(ext)
+        extCount = validExt.count(ext.lower())
         #If not found, errors = true & appends failedFiles with the file name
         if extCount == 0:
             errors = True
